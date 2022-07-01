@@ -32,6 +32,30 @@ public class MusicPickerModule: Module, MusicPickerResultHandler {
   public func definition() -> ModuleDefinition {
     Name("ExpoMusicPicker")
     
+    OnCreate {
+      self.appContext?.permissions?.register([
+        MusicLibraryPermissionRequester()
+      ])
+    }
+    
+    AsyncFunction("getPermissionsAsync") { (promise: Promise) -> Void in
+      guard let permissions = self.appContext?.permissions else {
+        return promise.reject(PermissionsModuleNotFoundException())
+      }
+      permissions.getPermissionUsingRequesterClass(MusicLibraryPermissionRequester.self,
+                                   resolve: promise.resolver,
+                                   reject: promise.legacyRejecter)
+    }
+    
+    AsyncFunction("requestPermissionsAsync") { (promise: Promise) -> Void in
+      guard let permissions = self.appContext?.permissions else {
+        return promise.reject(PermissionsModuleNotFoundException())
+      }
+      permissions.askForPermission(usingRequesterClass: MusicLibraryPermissionRequester.self,
+                                   resolve: promise.resolver,
+                                   reject: promise.legacyRejecter)
+    }
+    
     AsyncFunction("openMusicLibraryAsync") { (options: MusicPickerOptions, promise: Promise) in
 #if targetEnvironment(simulator)
       promise.reject(UnavailableOnSimulatorException())
@@ -50,6 +74,15 @@ public class MusicPickerModule: Module, MusicPickerResultHandler {
     guard let currentViewController = self.appContext?.utilities?.currentViewController()
     else {
       promise.reject(MissingCurrentViewControllerException())
+      return
+    }
+    
+    guard let permissions = self.appContext?.permissions else {
+      return promise.reject(PermissionsModuleNotFoundException())
+    }
+    
+    guard permissions.hasGrantedPermission(usingRequesterClass: MusicLibraryPermissionRequester.self) else {
+      promise.reject(MissingPermissionException())
       return
     }
     

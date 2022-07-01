@@ -8,6 +8,14 @@ export default function App() {
 
   const pickMediaAsync = async () => {
     try {
+      const permissionResult = await MusicPicker.requestPermissionsAsync();
+
+      console.log(permissionResult);
+      if (!permissionResult.granted && !permissionResult.canAskAgain) {
+        console.warn("No permission");
+        return;
+      }
+
       const result = await MusicPicker.openMusicLibraryAsync({
         allowMultipleSelection: false,
       });
