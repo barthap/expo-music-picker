@@ -10,11 +10,17 @@ struct PickingContext {
   let pickerDelegate: MusicPickerDelegate
 }
 
+extension MPMediaItemArtwork {
+  func base64String() -> String? {
+    image(at: bounds.size)?.jpegData(compressionQuality: 1.0)?.base64EncodedString()
+  }
+}
+
 extension MPMediaItem {
-  func toDictionary() -> [String: Any?] {
+  func toDictionary(options: MusicPickerOptions) -> [String: Any?] {
     let displayName = artist != nil ? "\(artist!) - \(title ?? "Untitled")" : (title ?? "Untitled")
     
-    return [
+    var result: [String: Any?] = [
       "id": persistentID,
       "uri": assetURL?.absoluteString,
       "artist": artist,
@@ -22,6 +28,19 @@ extension MPMediaItem {
       "album": albumTitle,
       "displayName": displayName,
       "durationSeconds": playbackDuration
+    ]
+    if options.includeArtworkImage {
+      result["artworkImage"] = getArtworkInfo()
+    }
+    return result
+  }
+  
+  private func getArtworkInfo() -> [String: Any?]? {
+    guard let artwork = self.artwork else { return nil }
+    return [
+      "width": artwork.bounds.width,
+      "height": artwork.bounds.height,
+      "base64Data": artwork.base64String()
     ]
   }
 }
@@ -106,7 +125,8 @@ public class MusicPickerModule: Module, MusicPickerResultHandler {
   // MARK: - MusicPickerResultHandler
   
   func didPickMedia(selectedMedia: MPMediaItemCollection) {
-    guard let promise = self.currentPickingContext?.promise
+    guard let promise = self.currentPickingContext?.promise,
+          let options = self.currentPickingContext?.options
     else {
       NSLog("Picking operation context has been lost.")
       return
@@ -115,7 +135,7 @@ public class MusicPickerModule: Module, MusicPickerResultHandler {
     // Cleanup the currently stored picking context
     self.currentPickingContext = nil
     
-    let results = selectedMedia.items.map { $0.toDictionary() }
+    let results = selectedMedia.items.map { $0.toDictionary(options: options) }
     promise.resolve([
       "cancelled": false,
       "items": results

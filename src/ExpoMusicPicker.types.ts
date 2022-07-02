@@ -5,6 +5,7 @@ export interface MusicPickerOptions {
   allowMultipleSelection?: boolean;
   showCloudItems?: boolean;
   userPrompt?: string;
+  includeArtworkImage?: boolean;
 }
 
 /**
@@ -18,6 +19,11 @@ export interface MusicItem {
   artist?: string;
   album?: string;
   durationSeconds: number;
+  artworkImage?: {
+    width: number;
+    height: number;
+    base64Data: string | null;
+  };
 }
 
 interface PickerResultBase {

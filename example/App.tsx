@@ -1,4 +1,10 @@
-import { StyleSheet, Text, TouchableHighlight, View } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableHighlight,
+  View,
+} from "react-native";
 
 import * as MusicPicker from "../src/ExpoMusicPicker";
 import { useState } from "react";
@@ -18,6 +24,8 @@ export default function App() {
 
       const result = await MusicPicker.openMusicLibraryAsync({
         allowMultipleSelection: false,
+        userPrompt: "Select some songs",
+        includeArtworkImage: true,
       });
 
       if (!result.cancelled) {
@@ -28,12 +36,27 @@ export default function App() {
     }
   };
 
+  const finalItmes = items.map((it) => {
+    const { artworkImage, ...rest } = it;
+    console.log(artworkImage?.width, artworkImage?.height);
+    return artworkImage?.base64Data ? rest : it;
+  });
+
   return (
     <View style={styles.container}>
       <TouchableHighlight onPress={pickMediaAsync}>
         <Text>Open music library</Text>
       </TouchableHighlight>
-      <Text>{JSON.stringify(items, null, 2)}</Text>
+      <Text>{JSON.stringify(finalItmes, null, 2)}</Text>
+      {items[0]?.artworkImage?.base64Data && (
+        <Image
+          source={{
+            uri: `data:image/jpeg;base64,${items[0].artworkImage.base64Data}`,
+          }}
+          style={{ width: 200, height: 200 }}
+          resizeMode="contain"
+        />
+      )}
     </View>
   );
 }
