@@ -1,10 +1,6 @@
-import { Subscription } from 'expo-modules-core';
-import ExpoMusicPickerView, { ExpoMusicPickerViewProps } from './ExpoMusicPickerView';
-export declare const PI: any;
-export declare function hello(): string;
-export declare function setValueAsync(value: string): Promise<any>;
-export declare type ChangeEventPayload = {
-    value: string;
-};
-export declare function addChangeListener(listener: (event: ChangeEventPayload) => void): Subscription;
-export { ExpoMusicPickerView, ExpoMusicPickerViewProps };
+import { PermissionResponse } from "expo-modules-core";
+import { MusicPickerOptions, PickerResult } from "./ExpoMusicPicker.types";
+export declare function getPermissionsAsync(): Promise<PermissionResponse>;
+export declare function requestPermissionsAsync(): Promise<PermissionResponse>;
+export declare function openMusicLibraryAsync(options?: MusicPickerOptions): Promise<PickerResult>;
+export * from "./ExpoMusicPicker.types";
