@@ -3,7 +3,7 @@ package expo.community.modules.musicpicker
 import android.net.Uri
 import android.os.Bundle
 
-data class Music(
+data class MusicMetadata(
         val uri: Uri,
         val artist: String? = null,
         val year: Int? = null,
