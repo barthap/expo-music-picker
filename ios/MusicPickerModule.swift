@@ -18,16 +18,15 @@ extension MPMediaItemArtwork {
 
 extension MPMediaItem {
   func toDictionary(options: MusicPickerOptions) -> [String: Any?] {
-    let displayName = artist != nil ? "\(artist!) - \(title ?? "Untitled")" : (title ?? "Untitled")
-    
     var result: [String: Any?] = [
       "id": persistentID,
       "uri": assetURL?.absoluteString,
-      "artist": artist,
+      "artist": artist ?? composer,
       "title": title,
       "album": albumTitle,
-      "displayName": displayName,
-      "durationSeconds": playbackDuration
+      "durationSeconds": playbackDuration,
+      "track": albumTrackNumber,
+      "dateAdded": dateAdded
     ]
     if options.includeArtworkImage {
       result["artworkImage"] = getArtworkInfo()
@@ -36,11 +35,13 @@ extension MPMediaItem {
   }
   
   private func getArtworkInfo() -> [String: Any?]? {
-    guard let artwork = self.artwork else { return nil }
+    guard let artwork = self.artwork,
+          let base64Data = artwork.base64String()
+          else { return nil }
     return [
       "width": artwork.bounds.width,
       "height": artwork.bounds.height,
-      "base64Data": artwork.base64String()
+      "base64Data": base64Data
     ]
   }
 }

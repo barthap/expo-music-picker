@@ -43,8 +43,8 @@ internal class MusicMetadataResolver(
         null
       } ?: run {
         // if unavailable or failed,
-        val fileName = getDirectUriInfo(uri)?.displayName
-        retrieveFileMetadata(uri, getRetriever()).copy(displayName = fileName)
+        val fileName = getDirectUriInfo(uri)?.fileName
+        retrieveFileMetadata(uri, getRetriever()).copy(fileName = fileName)
       }
 
       if (options?.includeArtworkImage == true) {
@@ -76,7 +76,7 @@ internal class MusicMetadataResolver(
         MediaStore.Audio.AudioColumns.ALBUM_ID, // 7
         pathColumn, // 8
         MediaStore.Audio.AudioColumns._ID, // 9
-        MediaStore.MediaColumns.DATE_MODIFIED // 10
+        MediaStore.MediaColumns.DATE_MODIFIED, // 10
     )
 
     return androidContext.contentResolver.query(
@@ -128,9 +128,9 @@ internal class MusicMetadataResolver(
 
       val audioFolderName =
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            audioRelativePath ?: "/"
+            audioRelativePath ?: null
           } else {
-            File(audioRelativePath).parentFile?.name?.takeIf { it != "0" } ?: "/"
+            File(audioRelativePath).parentFile?.name?.takeIf { it != "0" }
           }
 
       return@use MusicMetadata(
@@ -139,11 +139,11 @@ internal class MusicMetadataResolver(
           year = audioYear,
           track = audioTrack,
           title = audioTitle,
-          displayName = audioDisplayName,
+          fileName = audioDisplayName,
           duration = audioDuration,
           album = audioAlbum,
           albumId = albumId,
-          relativePath = audioFolderName,
+          albumFolderName = audioFolderName,
           id = audioId,
           dateAdded = audioDateAdded,
           artworkImage = null
@@ -178,7 +178,7 @@ internal class MusicMetadataResolver(
 
       return@use MusicMetadata(
           uri,
-          displayName = fileName,
+          fileName = fileName,
           dateAdded = lastModified
       )
     }

@@ -17,7 +17,7 @@ val Uri.isMediaProviderUri
  * Checks whether this [Uri] is a `com.android.providers.downloads.documents` provider uri
  */
 val Uri.isDownloadsProviderUri
-  get() = this.authority == "com.android.providers.downloads.document"
+  get() = this.authority == "com.android.providers.downloads.documents"
 
 /**
  * Checks whether this [Uri] points to a media asset that can be queried using
