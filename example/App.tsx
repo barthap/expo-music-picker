@@ -1,10 +1,4 @@
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TouchableHighlight,
-  View,
-} from "react-native";
+import { Image, StyleSheet, Text, View, Button } from "react-native";
 
 import * as MusicPicker from "expo-music-picker";
 import { useState } from "react";
@@ -16,15 +10,13 @@ export default function App() {
     try {
       const permissionResult = await MusicPicker.requestPermissionsAsync();
 
-      console.log(permissionResult);
-      if (!permissionResult.granted && !permissionResult.canAskAgain) {
+      if (!permissionResult.granted) {
         console.warn("No permission");
         return;
       }
 
       const result = await MusicPicker.openMusicLibraryAsync({
-        allowMultipleSelection: false,
-        userPrompt: "Select some songs",
+        allowMultipleSelection: true,
         includeArtworkImage: true,
       });
 
@@ -44,9 +36,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <TouchableHighlight onPress={pickMediaAsync}>
-        <Text>Open music library</Text>
-      </TouchableHighlight>
+      <Button title="Open music library" onPress={pickMediaAsync} />
       <Text>{JSON.stringify(finalItmes, null, 2)}</Text>
       {items[0]?.artworkImage?.base64Data && (
         <Image
