@@ -3,25 +3,40 @@
  */
 export interface MusicPickerOptions {
     allowMultipleSelection?: boolean;
-    showCloudItems?: boolean;
-    userPrompt?: string;
     includeArtworkImage?: boolean;
+    /**
+     * @platform ios
+     */
+    showCloudItems?: boolean;
+    /**
+     * @platform ios
+     */
+    userPrompt?: string;
 }
 /**
  * Represents single selection result
  */
 export interface MusicItem {
     id: number;
-    displayName: string;
-    uri?: string;
+    uri: string;
     title?: string;
     artist?: string;
     album?: string;
     durationSeconds: number;
+    track?: number;
+    dateAdded?: number;
+    /**
+     * @platform android
+     */
+    fileName: string;
+    /**
+     * @platform android
+     */
+    year?: number;
     artworkImage?: {
         width: number;
         height: number;
-        base64Data: string | null;
+        base64Data: string;
     };
 }
 interface PickerResultBase {

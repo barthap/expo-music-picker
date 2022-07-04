@@ -6,7 +6,7 @@ import {
   View,
 } from "react-native";
 
-import * as MusicPicker from "../src/ExpoMusicPicker";
+import * as MusicPicker from "expo-music-picker";
 import { useState } from "react";
 
 export default function App() {
