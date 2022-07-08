@@ -6,7 +6,7 @@ A music picker library for React Native. Provides access to the system's UI for 
 
 > Add screenshot/demo here
 
-## Supported plataforms
+## Supported platforms
 
 | Android Device | Android Emulator | iOS Device | iOS Simulator | Web | Expo Go |
 | -------------- | ---------------- | ---------- | ------------- | --- | ------- |
@@ -19,13 +19,17 @@ A music picker library for React Native. Provides access to the system's UI for 
 
 ## Installation
 
-### Expo Managed+ app
-
 ```sh
 npx expo install expo-music-picker
 ```
 
-After installing this package, add the config plugin to the plugins array of your **app.json** or **app.config.js** and then create a new Development Build.
+Once the library is installed, [create a new Development Build](https://docs.expo.dev/development/build/).
+
+If you're installing this in a bare React Native app, you will need to have the [`expo` package installed and configured](https://docs.expo.dev/bare/installing-expo-modules/).
+
+## Configuration in app.json / app.config.js
+
+Add `expo-music-picker` to the plugins array of your **app.json** or **app.config.js** and then [create a new Development Build](https://docs.expo.dev/development/build/) to apply the changes.
 
 ```json
 {
@@ -57,18 +61,7 @@ The config plugin has the following options:
   </tr>
 </table>
 
----
-
-### Bare React Native app
-
-To use this library, you need to have [Expo Modules installed](https://docs.expo.dev/bare/installing-expo-modules/):
-
-```
-npx install-expo-modules
-npx expo install expo-music-picker
-```
-
-#### Configure for iOS 🍏
+## Configuration for iOS 🍏
 
 Add `NSAppleMusicUsageDescription` key to your `Info.plist`:
 
@@ -79,7 +72,7 @@ Add `NSAppleMusicUsageDescription` key to your `Info.plist`:
 
 Run `npx pod-install` after installing the npm package.
 
-#### Configure for Android 🤖
+## Configuration for Android 🤖
 
 This package automatically adds the `READ_EXTERNAL_STORAGE` permission. It is used when picking music from the phone's library.
 
