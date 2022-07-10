@@ -63,6 +63,8 @@ The config plugin has the following options:
 
 ## Configuration for iOS 🍏
 
+> This is only required for usage in bare React Native apps.
+
 Add `NSAppleMusicUsageDescription` key to your `Info.plist`:
 
 ```xml
@@ -73,6 +75,8 @@ Add `NSAppleMusicUsageDescription` key to your `Info.plist`:
 Run `npx pod-install` after installing the npm package.
 
 ## Configuration for Android 🤖
+
+> This is only required for usage in bare React Native apps.
 
 This package automatically adds the `READ_EXTERNAL_STORAGE` permission. It is used when picking music from the phone's library.
 
