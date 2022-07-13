@@ -3,8 +3,11 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'maven-publish'
 
+import groovy.json.JsonSlurper
+def packageJson = new JsonSlurper().parse(new File('..', 'package.json'))
+
 group = 'expo.community.modules.musicpicker'
-version = '0.1.0'
+version = packageJson.version
 
 buildscript {
   def expoModulesCorePlugin = new File(project(":expo-modules-core").projectDir.absolutePath, "ExpoModulesCorePlugin.gradle")
