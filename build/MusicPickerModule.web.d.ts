@@ -1,5 +1,5 @@
 import { PermissionResponse } from "expo-modules-core";
-import { MusicPickerOptions, PickerResult } from "./ExpoMusicPicker";
+import { MusicPickerOptions, PickerResult } from "./ExpoMusicPicker.types";
 declare const _default: {
     getPermissionsAsync(): Promise<PermissionResponse>;
     requestPermissionsAsync(): Promise<PermissionResponse>;

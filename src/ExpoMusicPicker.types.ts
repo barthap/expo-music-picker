@@ -29,7 +29,7 @@ export interface MusicItem {
   /**
    * @platform android
    */
-  fileName: string;
+  fileName?: string;
   /**
    * @platform android
    */
