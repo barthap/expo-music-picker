@@ -272,12 +272,12 @@ Represents a single picked music item.
   <tr>
     <td><code>year</code></td>
     <td><code>number?</code></td>
-    <td>🤖 <b>Android only</b> Year of the song.</td>
+    <td>🤖 🌐 <b>Android & Web only</b>. Year of the song.</td>
   </tr>
   <tr>
     <td><code>fileName</code></td>
     <td><code>string?</code></td>
-    <td>🤖 <b>Android only</b> The filename of the media. Example: <i>toto_africa.mp3</i></td>
+    <td>🤖 <b>Android only</b>. The filename of the media. Example: <i>toto_africa.mp3</i></td>
   </tr>
   <tr>
     <td><code>artworkImage</code></td>
@@ -307,7 +307,7 @@ Represents a single picked music item.
   <tr>
     <td><code>base64Data</code></td>
     <td><code>string</code></td>
-    <td>🍏 <b>iOS only</b> When set to <code>true</code>, the picker shows available iCloud Music Library items, including purchased items, imported content, and Apple Music subscription content. When set to <code>false</code>, the picker only shows content downloaded to the device.</td>
+    <td>Base64-encoded image data. Does NOT include the <code>data:...;base64,</code> prefix.</td>
   </tr>
 
 </table>
