@@ -170,6 +170,18 @@ On Web, this does nothing - the permission is always granted.
 
 ### `openMusicLibraryAsync(options?: MusicPickerOptions): Promise<PickerResult>`
 
+Display the system UI for choosing a song / audio file from the phone's library.
+
+> **On Web:** The system UI can only be shown after user activation (e.g. a button press), otherwise the browser will block the request without a warning.
+
+**Arguments**:
+
+- `options` - Picker configuration options. An object of type [`MusicPickerOptions`](#musicpickeroptions).
+
+**Returns:** An object of type [`PickerResult`](#pickerresult).
+
+---
+
 ### `MusicPickerOptions`
 
 Options for the picker:
@@ -237,7 +249,7 @@ Represents a single picked music item.
   <tr>
     <td><code>id</code></td>
     <td><code>number</code></td>
-    <td>Unique asset ID. On Android, this value can be used to access the asset with <code>expo-media-library</code>. If the ID cannot be obtained, the value is <code>-1</code>.</td>
+    <td>Unique asset ID. On Android, this value can be used to access the asset with <a href="https://docs.expo.dev/versions/latest/sdk/media-library/"><i>expo-media-library</i></a>. If the ID cannot be obtained, the value is <code>-1</code>.</td>
   </tr>
   <tr>
     <td><code>uri</code></td>
@@ -297,12 +309,12 @@ Represents a single picked music item.
   <tr>
     <td><code>width</code></td>
     <td><code>number</code></td>
-    <td>Whether or not to allow selecting multiple media files at once.</td>
+    <td>Original width of the artwork image.</td>
   </tr>
   <tr>
     <td><code>height</code></td>
     <td><code>number</code></td>
-    <td>Whether to also include the artwork image dimensions and its data in Base64 format.</td>
+    <td>Original height of the artwork image.</td>
   </tr>
   <tr>
     <td><code>base64Data</code></td>
