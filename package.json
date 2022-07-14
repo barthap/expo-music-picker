@@ -17,13 +17,16 @@
     "react-native",
     "expo",
     "expo-music-picker",
+    "music",
+    "picker",
+    "music-picker",
     "ExpoMusicPicker"
   ],
   "repository": "https://github.com/barthap/expo-music-picker",
   "bugs": {
     "url": "https://github.com/barthap/expo-music-picker/issues"
   },
-  "author": "Bartłomiej Klocek",
+  "author": "Bartłomiej Klocek <bartlomiej.klocek@swmansion.com> (https://github.com/barthap)",
   "license": "MIT",
   "homepage": "https://github.com/barthap/expo-music-picker#readme",
   "dependencies": {
