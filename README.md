@@ -1,10 +1,9 @@
-> ❗ Work in progress. This library is not yet published to npm. Instructions below will not work.
-
 # Expo Music Picker
 
 A music picker library for React Native. Provides access to the system's UI for selecting songs from the phone's music library.
 
-> Add screenshot/demo here
+<img alt="expo-image-picker demo" src="https://user-images.githubusercontent.com/278340/178935041-ed9eda86-b5da-4b08-bd30-adb1d31f3ad7.gif" height="500" align="right"/>
+
 
 ## Supported platforms
 
