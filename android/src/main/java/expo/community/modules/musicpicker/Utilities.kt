@@ -1,7 +1,9 @@
 package expo.community.modules.musicpicker
 
+import android.Manifest
 import android.content.ClipData
 import android.net.Uri
+import android.os.Build
 import android.provider.DocumentsContract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -73,3 +75,12 @@ val ClipData.items: Iterator<ClipData.Item>
 
     override fun next(): ClipData.Item = getItemAt(index++)
   }
+
+object Utilities {
+  val audioPermissions: Array<String> =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      arrayOf(Manifest.permission.READ_MEDIA_AUDIO)
+    } else {
+      arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+}

@@ -1,10 +1,10 @@
 package expo.community.modules.musicpicker
 
-import android.Manifest
 import android.app.Activity.RESULT_CANCELED
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import expo.modules.interfaces.permissions.Permissions
 import expo.modules.kotlin.Promise
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
@@ -41,18 +41,18 @@ class MusicPickerModule : Module() {
     Name("ExpoMusicPicker")
 
     AsyncFunction("requestPermissionsAsync") { promise: Promise ->
-      askForPermissionsWithPermissionsManager(
+      Permissions.askForPermissionsWithPermissionsManager(
           appContext.permissions,
           promise,
-          Manifest.permission.READ_EXTERNAL_STORAGE
+          *Utilities.audioPermissions
       )
     }
 
     AsyncFunction("getPermissionsAsync") { promise: Promise ->
-      getPermissionsWithPermissionsManager(
+      Permissions.getPermissionsWithPermissionsManager(
           appContext.permissions,
           promise,
-          Manifest.permission.READ_EXTERNAL_STORAGE
+          *Utilities.audioPermissions,
       )
     }
 

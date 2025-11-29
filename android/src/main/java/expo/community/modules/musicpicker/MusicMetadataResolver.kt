@@ -1,6 +1,5 @@
 package expo.community.modules.musicpicker
 
-import android.Manifest
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
@@ -17,7 +16,7 @@ internal class MusicMetadataResolver(
 ) {
   private val hasGrantedPermission: Boolean
     get() = appContext.permissions
-        ?.hasGrantedPermissions(Manifest.permission.READ_EXTERNAL_STORAGE)
+        ?.hasGrantedPermissions(*Utilities.audioPermissions)
         ?: false
 
   private val androidContext
