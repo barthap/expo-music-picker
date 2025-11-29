@@ -10,8 +10,8 @@ Pod::Spec.new do |s|
   s.license        = package['license']
   s.author         = package['author']
   s.homepage       = package['homepage']
-  s.platform       = :ios, '12.0'
-  s.swift_version  = '5.4'
+  s.platform       = :ios, '15.1'
+  s.swift_version  = '5.9'
   s.source         = { git: 'https://github.com/barthap/expo-music-picker' }
   s.static_framework = true
 
@@ -20,13 +20,7 @@ Pod::Spec.new do |s|
   # Swift/Objective-C compatibility
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
-    'SWIFT_COMPILATION_MODE' => 'wholemodule'
   }
 
-  if !$ExpoUseSources&.include?(package['name']) && ENV['EXPO_USE_SOURCE'].to_i == 0 && File.exist?("#{s.name}.xcframework") && Gem::Version.new(Pod::VERSION) >= Gem::Version.new('1.10.0')
-    s.source_files = "**/*.h"
-    s.vendored_frameworks = "#{s.name}.xcframework"
-  else
-    s.source_files = "**/*.{h,m,swift}"
-  end
+  s.source_files = "**/*.{h,m,swift}"
 end
