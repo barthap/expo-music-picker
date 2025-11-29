@@ -1,7 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'maven-publish'
 
 import groovy.json.JsonSlurper
 def packageJson = new JsonSlurper().parse(new File('..', 'package.json'))
@@ -9,97 +6,42 @@ def packageJson = new JsonSlurper().parse(new File('..', 'package.json'))
 group = 'expo.community.modules.musicpicker'
 version = packageJson.version
 
-buildscript {
-  def expoModulesCorePlugin = new File(project(":expo-modules-core").projectDir.absolutePath, "ExpoModulesCorePlugin.gradle")
-  if (expoModulesCorePlugin.exists()) {
-    apply from: expoModulesCorePlugin
-    applyKotlinExpoModulesCorePlugin()
-  }
+def expoModulesCorePlugin = new File(project(":expo-modules-core").projectDir.absolutePath, "ExpoModulesCorePlugin.gradle")
+apply from: expoModulesCorePlugin
+applyKotlinExpoModulesCorePlugin()
+useCoreDependencies()
+useExpoPublishing()
 
-  // Simple helper that allows the root project to override versions declared by this library.
-  ext.safeExtGet = { prop, fallback ->
-    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
-  }
-
-  // Ensures backward compatibility
-  ext.getKotlinVersion = {
-    if (ext.has("kotlinVersion")) {
-      ext.kotlinVersion()
-    } else {
-      ext.safeExtGet("kotlinVersion", "1.6.10")
+// If you want to use the managed Android SDK versions from expo-modules-core, set this to true.
+// The Android SDK versions will be bumped from time to time in SDK releases and may introduce breaking changes in your module code.
+// Most of the time, you may like to manage the Android SDK versions yourself.
+def useManagedAndroidSdkVersions = true
+if (useManagedAndroidSdkVersions) {
+  useDefaultAndroidSdkVersions()
+} else {
+  buildscript {
+    // Simple helper that allows the root project to override versions declared by this library.
+    ext.safeExtGet = { prop, fallback ->
+      rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
     }
   }
-
-  repositories {
-    mavenCentral()
-  }
-
-  dependencies {
-    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${getKotlinVersion()}")
-  }
-}
-
-// Creating sources with comments
-task androidSourcesJar(type: Jar) {
-  classifier = 'sources'
-  from android.sourceSets.main.java.srcDirs
-}
-
-afterEvaluate {
-  publishing {
-    publications {
-      release(MavenPublication) {
-        from components.release
-        // Add additional sourcesJar to artifacts
-        artifact(androidSourcesJar)
-      }
-    }
-    repositories {
-      maven {
-        url = mavenLocal().url
-      }
+  project.android {
+    compileSdkVersion safeExtGet("compileSdkVersion", 36)
+    defaultConfig {
+      minSdkVersion safeExtGet("minSdkVersion", 24)
+      targetSdkVersion safeExtGet("targetSdkVersion", 36)
     }
   }
 }
 
 android {
-  compileSdkVersion safeExtGet("compileSdkVersion", 31)
-
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_11
-    targetCompatibility JavaVersion.VERSION_11
-  }
-
-  kotlinOptions {
-    jvmTarget = JavaVersion.VERSION_11.majorVersion
-  }
-
+  namespace "expo.community.modules.musicpicker"
   defaultConfig {
-    minSdkVersion safeExtGet("minSdkVersion", 21)
-    targetSdkVersion safeExtGet("targetSdkVersion", 31)
-    versionCode 1
-    versionName "0.1.0"
+    versionCode 2
+    versionName packageJson.version
   }
   lintOptions {
     abortOnError false
   }
 }
 
-repositories {
-  mavenCentral()
-}
-
-dependencies {
-  implementation project(':expo-modules-core')
-  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${getKotlinVersion()}"
-}
-
-/**
- * To make the users of annotations @OptIn and @RequiresOptIn aware of their experimental status,
- * the compiler raises warnings when compiling the code with these annotations:
- * This class can only be used with the compiler argument '-Xopt-in=kotlin.RequiresOptIn'
- * To remove the warnings, we add the compiler argument -Xopt-in=kotlin.RequiresOptIn.
- */
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
-  kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
-}
