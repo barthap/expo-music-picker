@@ -9,6 +9,9 @@ import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Base64
+import expo.community.modules.musicpicker.records.ArtworkImage
+import expo.community.modules.musicpicker.records.MusicMetadata
+import expo.community.modules.musicpicker.records.MusicPickerOptions
 import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.exception.Exceptions
 import kotlinx.coroutines.Dispatchers

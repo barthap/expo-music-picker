@@ -5,6 +5,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import expo.community.modules.musicpicker.records.MusicMetadata
+import expo.community.modules.musicpicker.records.MusicPickerOptions
+import expo.community.modules.musicpicker.records.PickerResult
 import expo.modules.interfaces.permissions.Permissions
 import expo.modules.kotlin.Promise
 import expo.modules.kotlin.modules.Module
@@ -110,31 +113,32 @@ class MusicPickerModule : Module() {
     }
 
     appContext.backgroundCoroutineScope.launch(exceptionHandler) {
-      processPickerResult(resultCode, intent)
+      val result = processPickerResult(resultCode, intent)
+      currentPickingContext?.promise?.resolve(result.toBundle())
+      currentPickingContext = null
     }
   }
   /**
    * Processes activity result of music picker.
    */
-  private suspend fun processPickerResult(resultCode: Int, intent: Intent?) {
-    val resultBundle: Bundle = Bundle().apply {
+  private suspend fun processPickerResult(resultCode: Int, intent: Intent?): PickerResult {
       if (resultCode == RESULT_CANCELED) {
-        putBoolean("cancelled", true)
-      } else {
+        return PickerResult.Canceled()
+      }
+
         if (intent == null) throw MissingIntentData()
 
-        putBoolean("cancelled", false)
-        val items = arrayListOf<Bundle>()
+        val items = mutableListOf<MusicMetadata>()
 
         if (intent.data != null) {
           // single item
           val metadata = getMusicMetadata(intent.data!!)
-          items.add(metadata.toBundle())
+          items.add(metadata)
         } else if (intent.clipData != null) {
           // multiple items
           for (item in intent.clipData!!.items) {
             val metadata = getMusicMetadata(item.uri)
-            items.add(metadata.toBundle())
+            items.add(metadata)
           }
         }
 
@@ -142,7 +146,7 @@ class MusicPickerModule : Module() {
           val paths = intent.getListExtra<Uri>("uris") ?: emptyList()
           for (uri in paths) {
             val metadata = getMusicMetadata(uri)
-            items.add(metadata.toBundle())
+            items.add(metadata)
           }
         }
 
@@ -152,15 +156,12 @@ class MusicPickerModule : Module() {
               ?: emptyList()
           for (uri in paths) {
             val metadata = getMusicMetadata(uri)
-            items.add(metadata.toBundle())
+            items.add(metadata)
           }
         }
 
-        putParcelableArrayList("items", items)
-      }
-    }
-    currentPickingContext?.promise?.resolve(resultBundle)
-    currentPickingContext = null
+        return PickerResult.Picked(items)
+
   }
 
   private data class PickingContext(
