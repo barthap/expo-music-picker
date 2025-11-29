@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   StyleSheet,
   Text,
@@ -38,6 +39,24 @@ function ItemElement({ item, index }: { item: MusicItem; index: number }) {
   );
 }
 
+function getMessageForException(e: unknown): string | null {
+  if (e instanceof Error) {
+    return e.message;
+  }
+  if (typeof e === 'string') {
+    return e;
+  }
+
+  if (!e || typeof e !== 'object') {
+    return null;
+  }
+  if ('toString' in e && typeof e['toString'] === 'function') {
+    return e.toString();
+  }
+
+  return null;
+}
+
 export default function App() {
   const [items, setItems] = useState<MusicPicker.MusicItem[]>([]);
 
@@ -46,7 +65,7 @@ export default function App() {
       const permissionResult = await MusicPicker.requestPermissionsAsync();
 
       if (!permissionResult.granted) {
-        console.warn("No permission. Open settings and grant please");
+        Alert.alert("No permission", "Open settings and grant please")
         return;
       }
 
@@ -59,7 +78,9 @@ export default function App() {
         setItems(result.items);
       }
     } catch (e) {
+      const message = getMessageForException(e) ?? 'Unknown error';
       console.warn("Exception occurred when picking music:", e);
+      Alert.alert("Exception occurred when picking music:", message);
     }
   };
 
@@ -69,9 +90,9 @@ export default function App() {
       ...rest,
       artworkImage: artworkImage
         ? {
-            ...artworkImage,
-            base64Data: artworkImage.base64Data.substring(0, 20).concat("..."),
-          }
+          ...artworkImage,
+          base64Data: artworkImage.base64Data.substring(0, 20).concat("..."),
+        }
         : null,
     };
   });
