@@ -9,6 +9,7 @@ import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.util.Base64
 import expo.modules.kotlin.AppContext
+import expo.modules.kotlin.exception.Exceptions
 import java.io.File
 
 internal class MusicMetadataResolver(
@@ -20,9 +21,7 @@ internal class MusicMetadataResolver(
         ?: false
 
   private val androidContext
-    get() = requireNotNull(appContext.reactContext) {
-      "React context is null"
-    }
+    get() = appContext.reactContext ?: throw Exceptions.ReactContextLost()
 
   /**
    * Tries best effort to get audio metadata from given content [uri].
@@ -75,7 +74,7 @@ internal class MusicMetadataResolver(
         MediaStore.Audio.AudioColumns.ALBUM_ID, // 7
         pathColumn, // 8
         MediaStore.Audio.AudioColumns._ID, // 9
-        MediaStore.MediaColumns.DATE_MODIFIED, // 10
+        MediaStore.Audio.AudioColumns.DATE_ADDED, // 10
     )
 
     return androidContext.contentResolver.query(
@@ -110,7 +109,7 @@ internal class MusicMetadataResolver(
       val idIndex =
           cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns._ID)
       val dateAddedIndex =
-          cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATE_MODIFIED)
+          cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATE_ADDED)
 
 
       val audioId = cursor.getLong(idIndex)
@@ -127,7 +126,7 @@ internal class MusicMetadataResolver(
 
       val audioFolderName =
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            audioRelativePath ?: null
+            audioRelativePath
           } else {
             File(audioRelativePath).parentFile?.name?.takeIf { it != "0" }
           }
@@ -152,13 +151,10 @@ internal class MusicMetadataResolver(
 
   private fun getDirectUriInfo(uri: Uri): MusicMetadata? {
     val projection = arrayOf(
-//            MediaStore.Audio.AudioColumns._ID,
-//            DocumentsContract.Document.COLUMN_DOCUMENT_ID,
         DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-        DocumentsContract.Document.COLUMN_LAST_MODIFIED
     )
 
-    return appContext.reactContext!!.contentResolver.query(
+    return androidContext.contentResolver.query(
         uri,
         projection,
         null,
@@ -170,15 +166,11 @@ internal class MusicMetadataResolver(
       }
 
       val fileNameIndex = cursor.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
-      val lastModifiedIndex = cursor.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_LAST_MODIFIED)
-
       val fileName = cursor.getString(fileNameIndex)
-      val lastModified = cursor.getInt(lastModifiedIndex)
 
       return@use MusicMetadata(
           uri,
           fileName = fileName,
-          dateAdded = lastModified
       )
     }
   }
