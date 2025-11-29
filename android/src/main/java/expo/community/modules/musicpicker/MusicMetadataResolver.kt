@@ -7,9 +7,12 @@ import android.os.Build
 import android.provider.BaseColumns
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.util.Base64
 import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.exception.Exceptions
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 internal class MusicMetadataResolver(
@@ -27,7 +30,7 @@ internal class MusicMetadataResolver(
    * Tries best effort to get audio metadata from given content [uri].
    * See the [MusicPickerModule] comment to see possibilities.
    */
-  fun getMusicMetadata(uri: Uri, options: MusicPickerOptions?): MusicMetadata {
+  suspend fun getMusicMetadata(uri: Uri, options: MusicPickerOptions?): MusicMetadata {
     val metadataRetriever = lazy {
       MediaMetadataRetriever().apply { setDataSource(androidContext, uri) }
     }
@@ -53,7 +56,7 @@ internal class MusicMetadataResolver(
     }
   }
 
-  private fun getMediaStoreInfo(uri: Uri): MusicMetadata? {
+  private suspend fun getMediaStoreInfo(uri: Uri): MusicMetadata? = withContext(Dispatchers.IO) {
     val rawId = DocumentsContract.getDocumentId(uri)
     val assetId = if (rawId.contains(':')) rawId.split(':')[1] else rawId
 
@@ -77,7 +80,7 @@ internal class MusicMetadataResolver(
         MediaStore.Audio.AudioColumns.DATE_ADDED, // 10
     )
 
-    return androidContext.contentResolver.query(
+    androidContext.contentResolver.query(
         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
         projection,
         BaseColumns._ID + "=?",
@@ -149,23 +152,15 @@ internal class MusicMetadataResolver(
     }
   }
 
-  private fun getDirectUriInfo(uri: Uri): MusicMetadata? {
-    val projection = arrayOf(
-        DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-    )
-
-    return androidContext.contentResolver.query(
-        uri,
-        projection,
-        null,
-        null,
-        null
+  private suspend fun getDirectUriInfo(uri: Uri): MusicMetadata? = withContext(Dispatchers.IO) {
+    androidContext.contentResolver.query(
+        uri, null, null, null, null
     )?.use { cursor ->
       if (!cursor.moveToFirst()) {
         return@use null
       }
 
-      val fileNameIndex = cursor.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+      val fileNameIndex = cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME)
       val fileName = cursor.getString(fileNameIndex)
 
       return@use MusicMetadata(
@@ -175,34 +170,41 @@ internal class MusicMetadataResolver(
     }
   }
 
-  private fun retrieveFileMetadata(uri: Uri, metadataRetriever: MediaMetadataRetriever): MusicMetadata {
-    val artist = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-    val year = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR)?.toIntOrNull()
-    val track = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER)?.toIntOrNull()
-    val title = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
-    val duration = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()?.let { it / 1000.0 }
-    val album = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
-    val dateAdded = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)?.toIntOrNull()
+  private suspend fun retrieveFileMetadata(
+      uri: Uri,
+      metadataRetriever: MediaMetadataRetriever
+  ): MusicMetadata = withContext(Dispatchers.IO) {
+      with(metadataRetriever) {
+          val artist = extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+          val year = extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR)?.toIntOrNull()
+          val track = extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER)?.toIntOrNull()
+          val title = extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+          val duration = extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()?.let { it / 1000.0 }
+          val album = extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
+          val dateAdded = extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)?.toIntOrNull()
 
-    return MusicMetadata(
-        uri,
-        artist = artist,
-        year = year,
-        track = track,
-        title = title,
-        duration = duration,
-        album = album,
-        dateAdded = dateAdded
-    )
+          MusicMetadata(
+              uri,
+              artist = artist,
+              year = year,
+              track = track,
+              title = title,
+              duration = duration,
+              album = album,
+              dateAdded = dateAdded
+          )
+      }
   }
 
-  private fun retrieveArtwork(metadataRetriever: MediaMetadataRetriever): ArtworkImage? {
+  private suspend fun retrieveArtwork(
+      metadataRetriever: MediaMetadataRetriever
+  ): ArtworkImage? = withContext(Dispatchers.IO) {
     val (data, width, height) = metadataRetriever.embeddedPicture?.let {
       val bmp = BitmapFactory.decodeByteArray(it, 0, it.size) ?: return@let null
       val data = Base64.encodeToString(it, Base64.DEFAULT) ?: return@let null
       Triple(data, bmp.width, bmp.height)
-    } ?: return null
+    } ?: return@withContext null
 
-    return ArtworkImage(data, width, height)
+    ArtworkImage(data, width, height)
   }
 }

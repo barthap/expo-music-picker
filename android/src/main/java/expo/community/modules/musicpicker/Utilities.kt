@@ -2,9 +2,11 @@ package expo.community.modules.musicpicker
 
 import android.Manifest
 import android.content.ClipData
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.DocumentsContract
+import java.util.ArrayList
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -75,6 +77,14 @@ val ClipData.items: Iterator<ClipData.Item>
 
     override fun next(): ClipData.Item = getItemAt(index++)
   }
+
+inline fun <reified T> Intent.getListExtra(name: String): List<T>? {
+  return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    getParcelableArrayListExtra(name, T::class.java)
+  } else {
+    getParcelableArrayListExtra(name)
+  }
+}
 
 object Utilities {
   val audioPermissions: Array<String> =

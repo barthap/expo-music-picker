@@ -4,13 +4,17 @@ import android.app.Activity.RESULT_CANCELED
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import expo.modules.interfaces.permissions.Permissions
 import expo.modules.kotlin.Promise
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.launch
 
 
-const val TAG = "expo-music-picker"
+internal const val TAG = "expo-music-picker"
+
 private const val INTENT_REQUEST_ID = 2317
 
 /**
@@ -57,6 +61,10 @@ class MusicPickerModule : Module() {
     }
 
     AsyncFunction("openMusicLibraryAsync") { options: MusicPickerOptions, promise: Promise ->
+      if (currentPickingContext != null) {
+        throw PickerAlreadyOpenException()
+      }
+
       val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
         type = "audio/*"
         addCategory(Intent.CATEGORY_OPENABLE)
@@ -77,7 +85,7 @@ class MusicPickerModule : Module() {
 
     OnActivityResult { _, (requestCode, resultCode, data) ->
       when (requestCode) {
-        INTENT_REQUEST_ID -> processPickerResult(resultCode, data)
+        INTENT_REQUEST_ID -> handlePickerResult(resultCode, data)
       }
     }
   }
@@ -88,13 +96,27 @@ class MusicPickerModule : Module() {
 
   private val musicMetadataResolver by lazy { MusicMetadataResolver(appContext) }
 
-  private fun getMusicMetadata(uri: Uri) =
+  private suspend fun getMusicMetadata(uri: Uri) =
       musicMetadataResolver.getMusicMetadata(uri, currentPickingContext?.options)
 
+
+  private fun handlePickerResult(resultCode: Int, intent: Intent?) {
+    if (currentPickingContext?.promise == null) { return }
+
+    val exceptionHandler = CoroutineExceptionHandler { _, err ->
+      Log.e(TAG, "Result processing failed", err)
+      currentPickingContext?.promise?.reject(MusicProcessingFailed(err))
+      currentPickingContext = null
+    }
+
+    appContext.backgroundCoroutineScope.launch(exceptionHandler) {
+      processPickerResult(resultCode, intent)
+    }
+  }
   /**
    * Processes activity result of music picker.
    */
-  private fun processPickerResult(resultCode: Int, intent: Intent?) {
+  private suspend fun processPickerResult(resultCode: Int, intent: Intent?) {
     val resultBundle: Bundle = Bundle().apply {
       if (resultCode == RESULT_CANCELED) {
         putBoolean("cancelled", true)
@@ -117,7 +139,7 @@ class MusicPickerModule : Module() {
         }
 
         if (intent.hasExtra("uris")) {
-          val paths = intent.getParcelableArrayListExtra<Uri>("uris") ?: emptyList()
+          val paths = intent.getListExtra<Uri>("uris") ?: emptyList()
           for (uri in paths) {
             val metadata = getMusicMetadata(uri)
             items.add(metadata.toBundle())
@@ -125,8 +147,8 @@ class MusicPickerModule : Module() {
         }
 
         // For Xiaomi Phones
-        if (items.size == 0 && intent.hasExtra("pick-result-data")) {
-          val paths = intent.getParcelableArrayListExtra<Uri>("pick-result-data")
+        if (items.isEmpty() && intent.hasExtra("pick-result-data")) {
+          val paths = intent.getListExtra<Uri>("pick-result-data")
               ?: emptyList()
           for (uri in paths) {
             val metadata = getMusicMetadata(uri)

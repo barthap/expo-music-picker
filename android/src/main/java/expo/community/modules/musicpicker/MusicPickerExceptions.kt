@@ -7,3 +7,9 @@ internal class MissingIntentData :
 
 internal class MissingCurrentActivityException :
     CodedException("Activity which was provided during module initialization is no longer available")
+
+internal class PickerAlreadyOpenException :
+    CodedException("Another music picker instance has already been opened")
+
+internal class MusicProcessingFailed(cause: Throwable) :
+    CodedException("Music processing failed: ${cause.message}", cause = cause)
