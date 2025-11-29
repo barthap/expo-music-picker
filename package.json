@@ -11,7 +11,9 @@
     "test": "expo-module test --passWithNoTests",
     "prepare": "expo-module prepare",
     "prepublishOnly": "expo-module prepublishOnly",
-    "expo-module": "expo-module"
+    "expo-module": "expo-module",
+    "open:ios": "xed example/ios",
+    "open:android": "open -a \"Android Studio\" example/android"
   },
   "keywords": [
     "react-native",
@@ -33,8 +35,10 @@
     "music-metadata-browser": "^2.5.7"
   },
   "devDependencies": {
-    "expo-module-scripts": "^2.0.0",
-    "expo-modules-core": "^0.10.0"
+    "@types/react": "~19.1.0",
+    "expo-module-scripts": "^5.0.7",
+    "expo": "^54.0.24",
+    "react-native": "0.81.5"
   },
   "peerDependencies": {
     "expo": "*",

@@ -49,5 +49,6 @@ interface PickerResultSuccess extends PickerResultBase {
     cancelled: false;
     items: MusicItem[];
 }
-export declare type PickerResult = PickerResultSuccess | PickerResultCanceled;
+export type PickerResult = PickerResultSuccess | PickerResultCanceled;
 export {};
+//# sourceMappingURL=ExpoMusicPicker.types.d.ts.map

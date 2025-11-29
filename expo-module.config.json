@@ -1,9 +1,17 @@
 {
-  "platforms": ["ios", "android", "web"],
+  "platforms": [
+    "apple",
+    "android",
+    "web"
+  ],
   "ios": {
-    "modules": ["MusicPickerModule"]
+    "modules": [
+      "MusicPickerModule"
+    ]
   },
   "android": {
-    "modules": ["expo.community.modules.musicpicker.MusicPickerModule"]
+    "modules": [
+      "expo.community.modules.musicpicker.MusicPickerModule"
+    ]
   }
 }

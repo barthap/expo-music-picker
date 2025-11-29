@@ -6,3 +6,4 @@ declare const _default: {
     openMusicLibraryAsync(options: MusicPickerOptions): Promise<PickerResult>;
 };
 export default _default;
+//# sourceMappingURL=MusicPickerModule.web.d.ts.map

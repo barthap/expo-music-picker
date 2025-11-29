@@ -8,7 +8,7 @@ import {
   PickerResult,
   MusicItem,
 } from "./ExpoMusicPicker.types";
-import musicMetadata, {
+import {
   IPicture,
   parseBlob,
   selectCover,
