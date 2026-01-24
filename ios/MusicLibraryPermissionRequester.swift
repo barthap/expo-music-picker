@@ -17,7 +17,7 @@ class MusicLibraryPermissionRequester: NSObject, EXPermissionsRequester {
     var status: EXPermissionStatus
     let musicLibraryUsageDescription = Bundle.main.object(forInfoDictionaryKey: "NSAppleMusicUsageDescription")
     if musicLibraryUsageDescription == nil {
-      EXFatal(EXErrorWithMessage("""
+      RCTFatal(RCTErrorWithMessage("""
         This app is missing 'NSAppleMusicUsageDescription' so music picker will fail. \
         Ensure that this key exists in app's Info.plist.
         """))
